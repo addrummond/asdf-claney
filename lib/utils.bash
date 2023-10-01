@@ -41,7 +41,8 @@ download_release() {
 	filename="$2"
 
 	# TODO: Adapt the release URL convention for claney
-	url="$GH_REPO/releases/download/v${version}/${TOOL_NAME}_${version}_linux_amd64.tar.gz"
+	local release_arch="$(release_arch_version)}
+	url="$GH_REPO/releases/download/v${version}/${TOOL_NAME}_${release_arch_version}.tar.gz"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
@@ -70,4 +71,22 @@ install_version() {
 		rm -rf "$install_path"
 		fail "An error occurred while installing $TOOL_NAME $version."
 	)
+}
+
+release_arch_version() {
+  OS="$(uname -s)"           # e.g. Darwin / Linux
+  ARCHITECTURE="$(uname -m)" # e.g. x86_64 / arm64
+
+  if [[ $OS == "Darwin" ]] && [[ $ARCHITECTURE == "arm64" ]]; then
+    echo "darwin_arm64"
+
+  elif [[ $OS == "Darwin" ]] && [[ $ARCHITECTURE == "x86_64" ]]; then
+    echo "darwin_amd64"
+
+  elif [[ $OS == "Linux" ]] && [[ $ARCHITECTURE == "x86_64" ]]; then
+    echo "linux_amd64"
+
+  else
+    fail "Unsupported OS... OS: $OS, Arch: $ARCHITECTURE"
+  fi
 }
