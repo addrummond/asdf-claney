@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for claney.
 GH_REPO="https://github.com/addrummond/claney"
 TOOL_NAME="claney"
 TOOL_TEST="claney -version"
@@ -42,7 +41,7 @@ download_release() {
 	filename="$2"
 
 	# TODO: Adapt the release URL convention for claney
-	url="$GH_REPO/archive/v${version}.tar.gz"
+	url="$GH_REPO/releases/download/v${version}/${TOOL_NAME}_${version}_linux_amd64.tar.gz"
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
