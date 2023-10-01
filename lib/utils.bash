@@ -26,18 +26,16 @@ sort_versions() {
 list_github_tags() {
 	git ls-remote --tags --refs "$GH_REPO" |
 		grep -o 'refs/tags/.*' | cut -d/ -f3- |
-		sed 's/^v//' |
-		while read version ; do
-			if [[ "$version" > "0.4.6" ]] ; then
-			  echo $version
-			fi
-		done
+		sed 's/^v//'
 }
 
 list_all_versions() {
-	# TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-	# Change this function if claney has other means of determining installable versions.
-	list_github_tags
+	list_github_tags |
+		while read -r version; do
+			if [[ "$version" > "0.4.6" ]]; then
+				echo "$version"
+			fi
+		done
 }
 
 download_release() {
@@ -45,8 +43,8 @@ download_release() {
 	version="$1"
 	filename="$2"
 
-	# TODO: Adapt the release URL convention for claney
-	local ra="$(release_arch)"
+	local ra
+	ra="$(release_arch)"
 	url="$GH_REPO/releases/download/v${version}/${TOOL_NAME}_${version}_${ra}.tar.gz"
 
 	echo "* Downloading $TOOL_NAME release $version..."
@@ -79,19 +77,19 @@ install_version() {
 }
 
 release_arch() {
-  OS="$(uname -s)"           # e.g. Darwin / Linux
-  ARCHITECTURE="$(uname -m)" # e.g. x86_64 / arm64
+	OS="$(uname -s)"           # e.g. Darwin / Linux
+	ARCHITECTURE="$(uname -m)" # e.g. x86_64 / arm64
 
-  if [[ $OS == "Darwin" ]] && [[ $ARCHITECTURE == "arm64" ]]; then
-    echo "darwin_arm64"
+	if [[ $OS == "Darwin" ]] && [[ $ARCHITECTURE == "arm64" ]]; then
+		echo "darwin_arm64"
 
-  elif [[ $OS == "Darwin" ]] && [[ $ARCHITECTURE == "x86_64" ]]; then
-    echo "darwin_amd64"
+	elif [[ $OS == "Darwin" ]] && [[ $ARCHITECTURE == "x86_64" ]]; then
+		echo "darwin_amd64"
 
-  elif [[ $OS == "Linux" ]] && [[ $ARCHITECTURE == "x86_64" ]]; then
-    echo "linux_amd64"
+	elif [[ $OS == "Linux" ]] && [[ $ARCHITECTURE == "x86_64" ]]; then
+		echo "linux_amd64"
 
-  else
-    fail "Unsupported OS... OS: $OS, Arch: $ARCHITECTURE"
-  fi
+	else
+		fail "Unsupported OS... OS: $OS, Arch: $ARCHITECTURE"
+	fi
 }
